@@ -29,3 +29,22 @@
 
 ```bash
 pip install -r requirements.txt
+```
+
+### 設定 Webhook URL
+打開 app.py，將 N8N_WEBHOOK_URL 變數替換為你的 n8n Production URL。
+
+```python
+N8N_WEBHOOK_URL = "http://localhost:5678/webhook/your-webhook-id"
+```
+
+## ▶️ 如何執行
+在終端機輸入以下指令啟動前端介面：
+```bash
+streamlit run app.py
+```
+
+瀏覽器將自動開啟，輸入文章並點擊「開始分析」即可看到結果。
+
+
+<img width="1865" height="924" alt="result" src="https://github.com/user-attachments/assets/40ff0664-f55e-4069-a17e-6be6866c5710" />
