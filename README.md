@@ -1,4 +1,4 @@
-# 🧠 AI Content Atomization Assistant (AI 內容原子化分析助手)
+# 🧠 AI-Article-Emotion-Summary-Analyzer-Tool (AI 文章情緒摘要分析器)
 
 這是一個自動化內容分析工具，利用 **Streamlit** 作為前端介面，並透過 **n8n** 自動化流程串接 **Groq AI** 模型。
 它可以將長篇文章快速轉化為結構化的洞察報告，包括摘要、情緒傾向、關鍵標籤與核心觀點。
