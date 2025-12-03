@@ -1,0 +1,197 @@
+{
+  "name": "AI Content Atomization (Groq Fixed)",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "maxSummaryLength",
+              "value": 500,
+              "type": "number"
+            },
+            {
+              "id": "id-2",
+              "name": "emailRecipient",
+              "value": "<__PLACEHOLDER_VALUE__Email address to send results__>",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "content",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "bd8b0e11-4999-43ec-8f76-957bc00f2ae0",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1808,
+        2208
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').first().json.body.content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI content analyzer that processes text and extracts key insights.\n\nYour task is to:\n1. Analyze the provided content\n2. Generate a concise summary (max {{ $('Workflow Configuration').first().json.maxSummaryLength }} characters)\n3. Extract key topics and themes\n4. Identify the main sentiment (positive, negative, neutral)\n5. If the user requests to send results via email, use the Gmail Tool to send the analysis\n\nReturn your analysis in the structured JSON format defined by the output parser."
+        }
+      },
+      "id": "7b8dd9b5-d712-4a0c-b728-6704fc921bc6",
+      "name": "AI Content Analyzer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2048,
+        2096
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"summary\": {\n\t\t\t\"type\": \"string\",\n\t\t\t\"description\": \"Concise summary of the content\"\n\t\t},\n\t\t\"topics\": {\n\t\t\t\"type\": \"array\",\n\t\t\t\"items\": {\n\t\t\t\t\"type\": \"string\"\n\t\t\t},\n\t\t\t\"description\": \"List of key topics identified\"\n\t\t},\n\t\t\"sentiment\": {\n\t\t\t\"type\": \"string\",\n\t\t\t\"description\": \"Overall sentiment: positive, negative, or neutral\"\n\t\t},\n\t\t\"keyInsights\": {\n\t\t\t\"type\": \"array\",\n\t\t\t\"items\": {\n\t\t\t\t\"type\": \"string\"\n\t\t\t},\n\t\t\t\"description\": \"Main insights extracted from the content\"\n\t\t}\n\t}\n}"
+      },
+      "id": "00b168e0-d4b3-4df8-af5d-b5b02a4f3a17",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2240,
+        2320
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "id": "103eda07-ae48-4332-af40-a500aced5a49",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        2320
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "2EBVTLyvYTfYD4CM",
+          "name": "Groq account"
+        }
+      },
+      "notes": "繁體中文回答"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "110eb6e6-a6de-439f-8f08-9386509c6b08",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        2096
+      ],
+      "id": "a2c9e2e2-407d-4488-b74b-13bea2c9daa9",
+      "name": "Webhook",
+      "webhookId": "110eb6e6-a6de-439f-8f08-9386509c6b08"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2432,
+        2192
+      ],
+      "id": "d64452c3-d539-4b0f-a9bb-4573468c1ed5",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "AI Content Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Content Analyzer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Content Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Content Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2638ceb0-6556-4f9d-afcd-ba304926c11b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c6dc51b1ee9b3ae98b95395be8f95f988dfcea34f0ae7e3c8af4ade37b8d2e5c"
+  },
+  "id": "ZyYA2sdUEXDmJqOL",
+  "tags": []
+}
